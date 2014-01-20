@@ -61,6 +61,29 @@ class HTMLwithSyntaxHighlighting < ::Redcarpet::Render::HTML
       return a
     end
   end
+  def postprocess(text)
+    replace_emoji(text)
+  end
+
+  private
+  def replace_emoji(text)
+    text.gsub(/:([^\s:])+:/) do |emoji|
+
+      emoji_code = emoji #.gsub("|", "_")
+      emoji      = emoji_code.gsub(":", "")
+
+      if Emoji.names.include?(emoji)
+        file_name    = "#{emoji}.png"
+        default_size = %{height="20" width="20"}
+
+        %{<img src="#{Redmine::Utils.relative_url_root}/images/emoji/#{file_name}" class="emoji" } +
+          %{title="#{emoji_code}" alt="#{emoji_code}" #{default_size}>}
+      else
+        emoji_code
+      end
+    end
+  end
+
 end  
 
 module Redmine
